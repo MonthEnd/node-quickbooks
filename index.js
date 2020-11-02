@@ -608,7 +608,7 @@ QuickBooks.prototype.getClass = function(id, callback) {
 /**
  * Retrieves the CompanyInfo from QuickBooks
  *
- * @param  {string} Id - The Id of persistent CompanyInfo
+ * @param  {string} Id - The Id of persistent CompanyInfo OR a class to pass to request, must contain realmId
  * @param  {function} callback - Callback function which is called with any error and the persistent CompanyInfo
  */
 QuickBooks.prototype.getCompanyInfo = function(id, callback) {
@@ -2340,8 +2340,18 @@ module.create = function(context, entityName, entity, callback) {
 
 module.read = function(context, entityName, id, callback) {
   var url = '/' + entityName.toLowerCase()
-  if (id) url = url + '/' + id
-  module.request(context, 'get', {url: url}, null, module.unwrap(callback, entityName))
+  var opts = {url: url}
+  if (id) {
+    if (id.realmId) {
+      opts.url = url + '/' + id.realmId;
+      if (id.qs) {
+        opts.qs = id.qs;
+      }
+    } else {
+      opts.url = url + '/' + id;
+    }
+  }
+  module.request(context, 'get', opts, null, module.unwrap(callback, entityName))
 }
 
 module.update = function(context, entityName, entity, callback) {
